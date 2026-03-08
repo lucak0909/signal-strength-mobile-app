@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow cleartext to context-of-code VM for future integration -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">200.69.13.70</domain>
+    </domain-config>
+</network-security-config>
