@@ -8,3 +8,7 @@ val SignalBlue = Color(0xFF0288D1)
 val SignalBlueLight = Color(0xFF80D8FF)
 val SignalRed = Color(0xFFD32F2F)
 val SignalOrange = Color(0xFFFFA000)
+
+// Surface tokens for cards and containers
+val SurfaceBlue   = Color(0xFFE3F2FD)
+val OnSurfaceBlue = Color(0xFF01579B)

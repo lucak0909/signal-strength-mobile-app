@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.signalstrength.app-mergeDebugResources-63:/values-fr-rCA/values-fr-rCA.xml",
+            "outputFile": "com.example.signalstrength.app-mergeDebugResources-64:/values-fr-rCA/values-fr-rCA.xml",
             "map": [
                 {
                     "source": "C:\\Users\\lucak\\.gradle\\caches\\8.10.2\\transforms\\bdf9223c35311dc7e8d52812a3c18dec\\transformed\\material3-release\\res\\values-fr-rCA\\values-fr-rCA.xml",

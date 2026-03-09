@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.signalstrength.app-mergeDebugResources-63:/values-fa/values-fa.xml",
+            "outputFile": "com.example.signalstrength.app-mergeDebugResources-64:/values-fa/values-fa.xml",
             "map": [
                 {
                     "source": "C:\\Users\\lucak\\.gradle\\caches\\8.10.2\\transforms\\dc069921a9868bf835b8920de4e68452\\transformed\\core-1.13.1\\res\\values-fa\\values-fa.xml",

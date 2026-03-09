@@ -16,10 +16,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -29,12 +29,29 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.signalstrength.ui.components.SignalStrengthMeter
+
+private fun signalQuality(rssi: Int?) = when {
+    rssi == null -> "No Signal"
+    rssi > -60   -> "Excellent"
+    rssi > -70   -> "Good"
+    rssi > -80   -> "Fair"
+    else         -> "Poor"
+}
+
+private fun signalColor(rssi: Int?) = when {
+    rssi == null -> Color.Gray
+    rssi > -60   -> Color(0xFF4CAF50)
+    rssi > -70   -> Color(0xFF8BC34A)
+    rssi > -80   -> Color(0xFFFFA000)
+    else         -> Color(0xFFD32F2F)
+}
 
 @Composable
 fun DashboardScreen(
@@ -49,6 +66,10 @@ fun DashboardScreen(
 
     var showRoomDialog by rememberSaveable { mutableStateOf(false) }
     var roomNameInput  by rememberSaveable { mutableStateOf("") }
+
+    val rssi    = latestReading?.wifiRssiDbm
+    val quality = signalQuality(rssi)
+    val color   = signalColor(rssi)
 
     // Request ACCESS_FINE_LOCATION before starting the service
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -114,29 +135,52 @@ fun DashboardScreen(
         Spacer(Modifier.height(24.dp))
 
         // Live signal card
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("WiFi Signal", style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(16.dp))
-
-                SignalStrengthMeter(
-                    rssiDbm = latestReading?.wifiRssiDbm,
-                    modifier = Modifier.fillMaxWidth()
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    text = "Live WiFi Signal",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(Modifier.height(12.dp))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SuggestionChip(
-                        onClick = {},
-                        label = {
-                            Text(if (latestReading?.isConnected == true) "Connected" else "Disconnected")
-                        }
+                // Large quality label — the focal point
+                Text(
+                    text = quality,
+                    style = MaterialTheme.typography.displaySmall,
+                    color = color
+                )
+
+                // RSSI value + link speed on same row
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = if (rssi != null) "$rssi dBm" else "—",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     latestReading?.linkSpeedMbps?.let { speed ->
-                        SuggestionChip(onClick = {}, label = { Text("$speed Mbps") })
+                        Text(
+                            text = "$speed Mbps",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
+
+                Spacer(Modifier.height(16.dp))
+
+                // Meter as visual reinforcement
+                SignalStrengthMeter(
+                    rssiDbm = rssi,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
 

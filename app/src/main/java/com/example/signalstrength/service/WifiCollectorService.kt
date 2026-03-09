@@ -7,12 +7,14 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.wifi.WifiInfo
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.example.signalstrength.R
 import com.example.signalstrength.data.datastore.UserPreferencesDataStore
 import com.example.signalstrength.data.local.WifiReadingEntity
+import com.example.signalstrength.data.repository.RoomRepository
 import com.example.signalstrength.data.repository.WifiRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -27,10 +29,21 @@ import javax.inject.Inject
 class WifiCollectorService : LifecycleService() {
 
     @Inject lateinit var wifiRepository: WifiRepository
+    @Inject lateinit var roomRepository: RoomRepository
     @Inject lateinit var userPreferencesDataStore: UserPreferencesDataStore
 
     private lateinit var connectivityManager: ConnectivityManager
     private var collectionJob: Job? = null
+
+    // Emulator fake data — drifts ±4 dBm each reading, clamped to [-88, -42]
+    private var fakeRssi = -62
+    private val rng = java.util.Random()
+    private val fakeSpeeds = listOf(54, 72, 130, 150, 300)
+
+    private val isEmulator get() =
+        Build.FINGERPRINT.contains("generic") ||
+        Build.PRODUCT.startsWith("sdk_gphone") ||
+        (Build.MANUFACTURER == "Google" && Build.MODEL.contains("sdk"))
 
     companion object {
         const val ACTION_START  = "com.example.signalstrength.ACTION_START"
@@ -112,21 +125,28 @@ class WifiCollectorService : LifecycleService() {
         val isConnected = caps?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
         // transportInfo as WifiInfo requires ACCESS_FINE_LOCATION (granted before service starts)
         val wifiInfo = caps?.transportInfo as? WifiInfo
-        val rssi      = if (isConnected) wifiInfo?.rssi      else null
-        val linkSpeed = if (isConnected) wifiInfo?.linkSpeed else null
+
+        // On emulators, wifiInfo is always null — generate slowly drifting fake data instead
+        val rssi = wifiInfo?.rssi ?: if (isEmulator) {
+            fakeRssi = (fakeRssi + rng.nextInt(9) - 4).coerceIn(-88, -42)
+            fakeRssi
+        } else null
+        val linkSpeed = wifiInfo?.linkSpeed ?: if (isEmulator) fakeSpeeds.random() else null
+        val connected = isConnected || isEmulator
 
         val entity = WifiReadingEntity(
             userId        = userId,
             wifiRssiDbm   = rssi,
             linkSpeedMbps = linkSpeed,
-            isConnected   = isConnected,
+            isConnected   = connected,
             timestampMs   = System.currentTimeMillis(),
             roomId        = roomId
         )
 
         withContext(Dispatchers.IO) {
             wifiRepository.insertReading(entity)
-            wifiRepository.syncUnsynced()
+            roomRepository.syncRooms()    // push any unsynced rooms first (gets supabaseId)
+            wifiRepository.syncUnsynced() // now room FK is available for wifi_samples
         }
     }
 

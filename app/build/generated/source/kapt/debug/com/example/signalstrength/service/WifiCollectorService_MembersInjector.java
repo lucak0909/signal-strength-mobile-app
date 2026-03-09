@@ -1,6 +1,7 @@
 package com.example.signalstrength.service;
 
 import com.example.signalstrength.data.datastore.UserPreferencesDataStore;
+import com.example.signalstrength.data.repository.RoomRepository;
 import com.example.signalstrength.data.repository.WifiRepository;
 import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
@@ -25,23 +26,29 @@ import javax.inject.Provider;
 public final class WifiCollectorService_MembersInjector implements MembersInjector<WifiCollectorService> {
   private final Provider<WifiRepository> wifiRepositoryProvider;
 
+  private final Provider<RoomRepository> roomRepositoryProvider;
+
   private final Provider<UserPreferencesDataStore> userPreferencesDataStoreProvider;
 
   public WifiCollectorService_MembersInjector(Provider<WifiRepository> wifiRepositoryProvider,
+      Provider<RoomRepository> roomRepositoryProvider,
       Provider<UserPreferencesDataStore> userPreferencesDataStoreProvider) {
     this.wifiRepositoryProvider = wifiRepositoryProvider;
+    this.roomRepositoryProvider = roomRepositoryProvider;
     this.userPreferencesDataStoreProvider = userPreferencesDataStoreProvider;
   }
 
   public static MembersInjector<WifiCollectorService> create(
       Provider<WifiRepository> wifiRepositoryProvider,
+      Provider<RoomRepository> roomRepositoryProvider,
       Provider<UserPreferencesDataStore> userPreferencesDataStoreProvider) {
-    return new WifiCollectorService_MembersInjector(wifiRepositoryProvider, userPreferencesDataStoreProvider);
+    return new WifiCollectorService_MembersInjector(wifiRepositoryProvider, roomRepositoryProvider, userPreferencesDataStoreProvider);
   }
 
   @Override
   public void injectMembers(WifiCollectorService instance) {
     injectWifiRepository(instance, wifiRepositoryProvider.get());
+    injectRoomRepository(instance, roomRepositoryProvider.get());
     injectUserPreferencesDataStore(instance, userPreferencesDataStoreProvider.get());
   }
 
@@ -49,6 +56,12 @@ public final class WifiCollectorService_MembersInjector implements MembersInject
   public static void injectWifiRepository(WifiCollectorService instance,
       WifiRepository wifiRepository) {
     instance.wifiRepository = wifiRepository;
+  }
+
+  @InjectedFieldSignature("com.example.signalstrength.service.WifiCollectorService.roomRepository")
+  public static void injectRoomRepository(WifiCollectorService instance,
+      RoomRepository roomRepository) {
+    instance.roomRepository = roomRepository;
   }
 
   @InjectedFieldSignature("com.example.signalstrength.service.WifiCollectorService.userPreferencesDataStore")

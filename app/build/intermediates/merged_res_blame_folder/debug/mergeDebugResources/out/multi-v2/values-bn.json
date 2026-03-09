@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.signalstrength.app-mergeDebugResources-63:/values-bn/values-bn.xml",
+            "outputFile": "com.example.signalstrength.app-mergeDebugResources-64:/values-bn/values-bn.xml",
             "map": [
                 {
                     "source": "C:\\Users\\lucak\\.gradle\\caches\\8.10.2\\transforms\\181848b0b3f0dd60bd970790eae11f58\\transformed\\browser-1.8.0\\res\\values-bn\\values-bn.xml",
