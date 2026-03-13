@@ -53,6 +53,9 @@ class WifiCollectorService : LifecycleService() {
         private const val NOTIFICATION_ID = 1
         private const val CHANNEL_ID = "wifi_collector_channel"
 
+        var isRunning = false
+            private set
+
         fun start(context: Context, roomId: Long? = null) {
             context.startForegroundService(
                 Intent(context, WifiCollectorService::class.java).apply {
@@ -96,6 +99,7 @@ class WifiCollectorService : LifecycleService() {
             .build()
 
         startForeground(NOTIFICATION_ID, notification)
+        isRunning = true
 
         collectionJob = lifecycleScope.launch {
             // Read userId once — if missing, stop immediately
@@ -114,6 +118,7 @@ class WifiCollectorService : LifecycleService() {
     }
 
     private fun stopCollection() {
+        isRunning = false
         collectionJob?.cancel()
         collectionJob = null
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -145,6 +150,9 @@ class WifiCollectorService : LifecycleService() {
 
         withContext(Dispatchers.IO) {
             wifiRepository.insertReading(entity)
+        }
+        // Sync runs independently so it doesn't delay the next collection
+        lifecycleScope.launch(Dispatchers.IO) {
             roomRepository.syncRooms()    // push any unsynced rooms first (gets supabaseId)
             wifiRepository.syncUnsynced() // now room FK is available for wifi_samples
         }
