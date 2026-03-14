@@ -112,7 +112,7 @@ class WifiCollectorService : LifecycleService() {
 
             while (true) {
                 collectAndStore(userId, roomId)
-                delay(30_000L)
+                delay(5_000L)
             }
         }
     }
