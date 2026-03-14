@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.signalstrength.data.repository.AuthRepository
 import com.example.signalstrength.data.repository.RoomRepository
 import com.example.signalstrength.data.repository.WifiRepository
+import com.example.signalstrength.domain.model.WifiReading
 import com.example.signalstrength.service.WifiCollectorService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
